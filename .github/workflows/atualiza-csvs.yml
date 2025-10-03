@@ -1,0 +1,37 @@
+name: Atualiza CSVs do Gov
+
+# Executa todo dia às 06:00 UTC e também manualmente
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  download_csvs:
+    runs-on: ubuntu-latest
+    steps:
+
+      # 1️⃣ Checkout do repositório
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+
+      # 2️⃣ Criar pasta CSV
+      - name: Criar pasta CSV
+        run: mkdir -p csv
+
+      # 3️⃣ Baixar EXP_2025.csv ignorando SSL
+      - name: Baixar EXP_2025.csv
+        run: curl -k -fSL -o csv/EXP_2025.csv https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_2025.csv
+
+      # 4️⃣ Baixar IMP_2025.csv ignorando SSL
+      - name: Baixar IMP_2025.csv
+        run: curl -k -fSL -o csv/IMP_2025.csv https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/IMP_2025.csv
+
+      # 5️⃣ Commit e push
+      - name: Commit e push
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "actions@github.com"
+          git add csv/EXP_2025.csv csv/IMP_2025.csv
+          git commit -m "Atualiza CSVs do governo" || echo "Sem alterações para commit"
+          git push origin main

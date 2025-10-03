@@ -14,6 +14,9 @@ jobs:
       # 1️⃣ Checkout do repositório
       - name: Checkout do repositório
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_GITHUB }}  # Usa PAT para push
+          persist-credentials: true
 
       # 2️⃣ Criar pasta CSV
       - name: Criar pasta CSV
@@ -27,11 +30,11 @@ jobs:
       - name: Baixar IMP_2025.csv
         run: curl -k -fSL -o csv/IMP_2025.csv https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/IMP_2025.csv
 
-      # 5️⃣ Commit e push
+      # 5️⃣ Commit e push para branch separado
       - name: Commit e push
         run: |
           git config --local user.name "github-actions"
           git config --local user.email "actions@github.com"
           git add csv/EXP_2025.csv csv/IMP_2025.csv
           git commit -m "Atualiza CSVs do governo" || echo "Sem alterações para commit"
-          git push origin main
+          git push https://${{ secrets.PAT_GITHUB }}@github.com/achaves46/balanca-csv.git HEAD:data-update
